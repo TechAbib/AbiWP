@@ -1,0 +1,44 @@
+# BEGIN WordPress
+# The directives (lines) between `BEGIN WordPress` and `END WordPress` are
+# dynamically generated, and should only be modified via WordPress filters.
+# Any changes to the directives between these markers will be overwritten.
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+
+# END WordPress
+
+php_value upload_max_filesize 64M
+php_value post_max_size 512M
+php_value max_execution_time 600
+php_value max_input_time 600
+#php_value memory_limit 256M
+
+ServerSignature Off
+
+#RewriteEngine On
+#RewriteCond %{HTTP_HOST} !^www\.
+#RewriteRule ^(.*)$ http://www.%{HTTP_HOST}/$1 [R=301,L]
+
+#Force www:
+#RewriteEngine on
+#RewriteCond %{HTTP_HOST} ^sitename [NC]
+#RewriteRule ^(.*)$ https://www.sitename/$1 [L,R=301,NC]
+
+Header set X-Content-Type-Options "nosniff"
+Header always set X-Xss-Protection "1; mode=block"
+Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+Header always set Content-Security-Policy "default-src https: data: 'unsafe-inline' 'unsafe-eval'"
+Header always set X-Frame-Options "SAMEORIGIN"
+Header set Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data:"
+
+Header edit Set-Cookie ^(.*)$ $1;HttpOnly;Secure;SameSite=strict
+#Header edit Set-Cookie ^(.*)$ $1;HttpOnly;Secure
+#Header set Set-Cookie HttpOnly;Secure
+#Header always edit Set-Cookie (.*) "$1; HTTPOnly"
+#Header always edit Set-Cookie (.*) "$1; Secure"

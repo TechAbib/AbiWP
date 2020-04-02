@@ -18,23 +18,17 @@
  * @package WordPress
  */
 
-//Using environment variables for DB connection information
+// ** MySQL settings - You can get this info from your web host ** //
+/** The name of the database for WordPress */
 
-$connectstr_dbhost = '';
-$connectstr_dbname = '';
-$connectstr_dbusername = '';
-$connectstr_dbpassword = '';
 
-foreach ($_SERVER as $key => $value) {
-    if (strpos($key, "MYSQLCONNSTR_") !== 0) {
-        continue;
-    }
-    
-    $connectstr_dbhost = preg_replace("/^.*Data Source=(.+?);.*$/", "\\1", $value);
-    $connectstr_dbname = preg_replace("/^.*Database=(.+?);.*$/", "\\1", $value);
-    $connectstr_dbusername = preg_replace("/^.*User Id=(.+?);.*$/", "\\1", $value);
-    $connectstr_dbpassword = preg_replace("/^.*Password=(.+?)$/", "\\1", $value);
-}
+
+$value = getenv("MYSQLCONNSTR_defaultConnection");
+
+$connectstr_dbhost = preg_replace("/^.*Data Source=(.+?);.*$/", "\\1", $value);
+$connectstr_dbname = preg_replace("/^.*Database=(.+?);.*$/", "\\1", $value);
+$connectstr_dbusername = preg_replace("/^.*User Id=(.+?);.*$/", "\\1", $value);
+$connectstr_dbpassword = preg_replace("/^.*Password=(.+?)$/", "\\1", $value);
 
 // ** MySQL settings - You can get this info from your web host ** //
 /** The name of the database for WordPress */
@@ -55,6 +49,7 @@ define('DB_CHARSET', 'utf8');
 /** The Database Collate type. Don't change this if in doubt. */
 define('DB_COLLATE', '');
 
+
 /**#@+
  * Authentication Unique Keys and Salts.
  *
@@ -73,16 +68,6 @@ define('SECURE_AUTH_SALT', 'put your unique phrase here');
 define('LOGGED_IN_SALT',   'put your unique phrase here');
 define('NONCE_SALT',       'put your unique phrase here');
 
-
-/* Security for Wordpress : 
-you may wish to disable the plugin or theme editor to prevent overzealous users from being able to edit sensitive files and 
-potentially crash the site. Disabling these also provides an additional layer of security if a hacker gains access to a 
-well-privileged user account.
-Note : If your plugin or theme you use with your app requires editing of the files , comment the line below for 'DISALLOW_FILE_EDIT'
-*/
-define('DISALLOW_FILE_EDIT', true);
-
-
 /**#@-*/
 
 /**
@@ -91,7 +76,7 @@ define('DISALLOW_FILE_EDIT', true);
  * You can have multiple installations in one database if you give each
  * a unique prefix. Only numbers, letters, and underscores please!
  */
-$table_prefix  = 'wp_';
+$table_prefix = 'wp_';
 
 /**
  * For developers: WordPress debugging mode.
@@ -105,20 +90,37 @@ $table_prefix  = 'wp_';
  *
  * @link https://codex.wordpress.org/Debugging_in_WordPress
  */
-define('WP_DEBUG', false);
+define( 'WP_DEBUG', false );
+define( 'WP_DEBUG_LOG', false );
+define( 'WP_DEBUG_DISPLAY', false );
 
-/* That's all, stop editing! Happy blogging. */
+define( 'WP_MEMORY_LIMIT', '600M' );
 
-//Relative URLs for swapping across app service deployment slots 
-define('WP_HOME', 'http://'. filter_input(INPUT_SERVER, 'HTTP_HOST', FILTER_SANITIZE_STRING));
-define('WP_SITEURL', 'http://'. filter_input(INPUT_SERVER, 'HTTP_HOST', FILTER_SANITIZE_STRING));
+/* That's all, stop editing! Happy publishing. */
+
+if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
+  $_SERVER["HTTPS"] = "on";
+  $_SERVER["REQUEST_SCHEME"] = "https";
+  define('WP_HOME','https://'. filter_input(INPUT_SERVER, 'HTTP_HOST', FILTER_SANITIZE_STRING));
+  define('WP_SITEURL','https://'. filter_input(INPUT_SERVER, 'HTTP_HOST', FILTER_SANITIZE_STRING));
+} else {
+  define('WP_HOME', 'https://'. filter_input(INPUT_SERVER, 'HTTP_HOST', FILTER_SANITIZE_STRING));
+  define('WP_SITEURL', 'https://'. filter_input(INPUT_SERVER, 'HTTP_HOST', FILTER_SANITIZE_STRING));
+}
+
+//Relative URLs for swapping across app service deployment slots
 define('WP_CONTENT_URL', '/wp-content');
 define('DOMAIN_CURRENT_SITE', filter_input(INPUT_SERVER, 'HTTP_HOST', FILTER_SANITIZE_STRING));
-
+define( 'WP_AUTO_UPDATE_CORE', false );
+define( 'RT_WP_NGINX_HELPER_CACHE_PATH', '/var/cache/nginx' );
+define('FORCE_SSL_ADMIN', true); 
+if ( isset($_SERVER['HTTP_X_ARR_SSL']) ) 
+        $_SERVER['HTTPS']='on';
 
 /** Absolute path to the WordPress directory. */
-if ( !defined('ABSPATH') )
-	define('ABSPATH', dirname(__FILE__) . '/');
+if ( ! defined( 'ABSPATH' ) ) {
+	define( 'ABSPATH', dirname( __FILE__ ) . '/' );
+}
 
 /** Sets up WordPress vars and included files. */
-require_once(ABSPATH . 'wp-settings.php');
+require_once( ABSPATH . 'wp-settings.php' );
